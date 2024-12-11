@@ -17,7 +17,8 @@ protected:
     bool criticalHit = false; // Whether this turn is a critical hit
     int lastDamage;   // Last damage received
     int criticalDamage; // Damage caused by critical hit
-    int criticalChance = 60; // Critical hit chance as a percentage
+    int extraDamage;
+    int criticalChance = 40; // Critical hit chance as a percentage
     int blockedDamage; // Damage blocked by defense
     int specialRecovered; // Special points recovered
     int lastRecoveredHealth; // Record last recovered health points
@@ -48,6 +49,7 @@ public:
     int getSpecialPoints() const;
     int getLastDamage() const; // Get last damage taken
     int getCriticalDamage() const; // Get last critical damage caused
+    int getExtraDamage() const;
     int getBlockedDamage() const; // Get last damage blocked
     int getSpecialRecovered() const; // Get last special points recovered
     bool isCriticalHit() const; // Check if last turn was critical
@@ -59,4 +61,6 @@ public:
     void resetCooldown(int cooldown);
     int getCooldownTimer() const;
 };
+
+
 
