@@ -1,4 +1,3 @@
-
 #include "Game.h"
 #include <SFML/Graphics.hpp>
 #include <iostream>
@@ -578,7 +577,7 @@ void Game::handleInput() {
                         player->special(*opponent);
                         player->resetCooldown(5); // Reset cooldown
                         actionStatusText.setString("Player used a special attack and caused " +
-                                                   std::to_string(player->getLastDamage()) + " damage!");
+                                                   std::to_string(player->getExtraDamage()) + " damage!");
                     } else {
                         //actionStatusText.setString("Player tried a special attack but it's not available. Check cooldown or special points.");
                         std::string errorMsg;
@@ -627,7 +626,7 @@ void Game::opponentAction() {
             opponent->special(*player);
             opponent->resetCooldown(5); // Reset cooldown
             actionStatusText.setString("Opponent used a special attack and caused " +
-                                       std::to_string(opponent->getLastDamage()) + " damage!");
+                                       std::to_string(opponent->getExtraDamage()) + " damage!");
         } else {
             std::string errorMsg;
             if (opponent->getCooldownTimer() > 0) {
