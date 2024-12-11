@@ -33,8 +33,9 @@ void SunWukong::special(Character& target) {
         return;
     }
     // Perform special attack
-    std::cout << "Sun Wukong uses special move!\n";
-    target.takeDamage(attackPower + 15);
+    extraDamage = std::max(12, attackPower + randomVariation(10)); // ensure minimum damage is 10
+    std::cout << "Sun Wukong uses special move!" << extraDamage << "\n";
+    target.takeDamage(extraDamage);
     specialPoints -= 20;
     resetCooldown(5); // Reset cooldown to 5 turns
 }
