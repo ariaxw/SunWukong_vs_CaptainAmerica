@@ -62,5 +62,3 @@ public:
     int getCooldownTimer() const;
 };
 
-
-
