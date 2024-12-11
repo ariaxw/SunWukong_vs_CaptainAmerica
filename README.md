@@ -64,9 +64,9 @@ make
 #### Sun Wukong
 - **Health**: Moderate
 - **Attack Power**: High
-- **Special Ability**: Adds bonus damage (+15) to attacks.
+- **Special Ability**: Adds bonus damage to special attacks.
 - **Unique Traits**:
-  * Special attack costs 10 SP.
+  * Special attack costs 20 SP.
   * Can deal critical hits with high damage.
     
 #### Captain America
@@ -74,7 +74,7 @@ make
 - **Attack Power**: Moderate
 - **Special Ability**: Uses a shield throw for extra damage (+10).
 - **Unique Traits**:
-  * Special attack costs 10 SP.
+  * Special attack costs 20 SP.
   * Focuses on defense and health regeneration.
 
 ### Gameplay
