@@ -12,7 +12,8 @@ Character::Character(const std::string& name, int health, int attackPower, int d
       criticalHit(false),
       lastDamage(0),
       criticalDamage(50),
-      criticalChance(60),
+      extraDamage(0),
+      criticalChance(40),
       blockedDamage(0),
       specialRecovered(0),
       lastRecoveredHealth(0),
@@ -104,10 +105,8 @@ void Character::special(Character& target) {
     }
 
     // Perform special attack
-    int extraDamage = std::max(10, attackPower + randomVariation(5)); // ensure minimum damage is 10
-    lastDamage = extraDamage;
+    extraDamage = std::max(10, attackPower + randomVariation(10)); // ensure minimum damage is 10
     target.takeDamage(extraDamage);
-
     specialPoints -= 20;
     resetCooldown(5);
     std::cout << name << " uses a special attack and causes " << extraDamage << " damage!\n";
@@ -141,6 +140,9 @@ int Character::getCriticalDamage() const {
     return criticalDamage;
 }
 
+int Character::getExtraDamage() const {
+    return extraDamage;
+}
 
 int Character::getSpecialRecovered() const {
     return specialRecovered;
