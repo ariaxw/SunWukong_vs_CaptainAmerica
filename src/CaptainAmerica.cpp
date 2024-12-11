@@ -32,8 +32,9 @@ void CaptainAmerica::special(Character& target) {
         return;
     }
     // Perform special attack
-    std::cout << "Captain America uses shield throw!\n";
-    target.takeDamage(attackPower + 10);
+    extraDamage = std::max(10, attackPower + randomVariation(10)); // ensure minimum damage is 10
+    std::cout << "Captain America uses shield throw!" << extraDamage << "\n";
+    target.takeDamage(extraDamage);
     specialPoints -= 20;
     resetCooldown(5); // Reset cooldown to 5 turns
 }
