@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <ctime>
 
+// Base class for game characters
 class Character {
 protected:
     std::string name;
@@ -14,6 +15,7 @@ protected:
     int defense;
     int specialPoints;
     
+    // Combat-related flags and counters
     bool criticalHit = false; // Whether this turn is a critical hit
     int lastDamage;   // Last damage received
     int criticalDamage; // Damage caused by critical hit
@@ -25,26 +27,32 @@ protected:
     
     int cooldownTimer = 0;
 
+    // Adds random variation to an attack's damage
     int randomVariation(int baseValue);
 
 public:
+    // Constructor to initialize a character with stats
     Character(const std::string& name, int health, int attackPower, int defense);
     const std::string& getName() const;
 
     virtual ~Character() = default;
-
+    
+    // Virtual methods for gameplay actions
     virtual void attack(Character& target);
     virtual void defend();
     virtual void special(Character& target);
     virtual void draw(sf::RenderWindow& window, sf::Vector2f position) = 0;
 
+    // Methods for health and combat management
     void takeDamage(int damage);
     void increaseHealth(int amount);
     bool isAlive() const;
     
+    // Critical hit methods
     void resetCriticalHit();
     void applyCriticalHit();
 
+    // Getters for combat-related stats
     int getHealth() const;
     int getSpecialPoints() const;
     int getLastDamage() const; // Get last damage taken
