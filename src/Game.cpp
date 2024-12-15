@@ -1,17 +1,21 @@
+
 #include "Game.h"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <sstream>
 #include <regex>
 
+// Constructor to initialize the game with the selected character
 Game::Game(int playerChoice)
     : stopThread(false),
       window(sf::VideoMode(1100, 820), "Sun Wukong vs Captain America"),
       isPlayerTurn(true) {
-          
+    
+    // Load player and opponent based on the player's choice
     if (playerChoice == 1) {
         player = new SunWukong();
         opponent = new CaptainAmerica();
+        // Load textures for Sun Wukong and Captain America
         if (!playerTexture.loadFromFile("../assets/sunwukong.png") ||
             !opponentTexture.loadFromFile("../assets/captainamerica.png")) {
             throw std::runtime_error("Failed to load images!");
@@ -19,21 +23,25 @@ Game::Game(int playerChoice)
     } else if (playerChoice == 2) {
         player = new CaptainAmerica();
         opponent = new SunWukong();
+        // Load textures for Captain America and Sun Wukong
         if (!playerTexture.loadFromFile("../assets/captainamerica.png") ||
             !opponentTexture.loadFromFile("../assets/sunwukong.png")) {
             throw std::runtime_error("Failed to load images!");
         }
     }
     
+    // Configure player and opponent sprites
     playerSprite.setTexture(playerTexture);
     opponentSprite.setTexture(opponentTexture);
     playerSprite.setPosition(65, 480); // Player stays on the left
-    opponentSprite.setPosition(650, 480);
+    opponentSprite.setPosition(650, 480); // Position opponent on the right
     
+    // Load font for UI text
+    // Configure UI elements such as health bars, special bars, and text
+        
     if (!font.loadFromFile("../assets/arial.ttf")) {
         throw std::runtime_error("Failed to load font!");
     }
-    
     rulesText.setFont(font);
     rulesText.setCharacterSize(30);
     rulesText.setPosition(200, 150);
@@ -127,12 +135,15 @@ Press [Enter] to start! Gogogo!
     actionStatusText.setCharacterSize(25);
     actionStatusText.setFillColor(sf::Color::Yellow);
     actionStatusText.setPosition(150, 420);
-            
-    particles.setPrimitiveType(sf::Points); // Use points for particles
+        
+    // Use points for particles
+    particles.setPrimitiveType(sf::Points);
           
+    // Start the animation thread for effects
     animationThread = std::thread(&Game::updateAnimations, this);
 }
 
+// Destructor to clean up resources and stop the animation thread
 Game::~Game() {
     stopThread = true;
     if (animationThread.joinable()) {
@@ -140,8 +151,9 @@ Game::~Game() {
     }
 }
 
+// Main game loop
 void Game::run() {
-    showRules();
+    showRules(); // Display the rules screen
     while (window.isOpen() && currentRound <= maxRounds) {
         while (player->isAlive() && opponent->isAlive()) {
             handleInput(); // Handle player input, including checking for exit
@@ -169,6 +181,7 @@ void Game::run() {
             break; // Exit the main loop if the window is closed
         }
 
+        // Determine the result of the round
         std::string roundResult;
         if (player->isAlive()) {
             playerWins++;
@@ -194,19 +207,24 @@ void Game::run() {
     }
 }
 
+// Template function to interpolate between two values of type T
 template <typename T>
 T interpolate(const T& start, const T& end, float t) {
+    // Linearly interpolate between start and end based on t (0.0 to 1.0)
     return start + t * (end - start);
 }
+// Function to interpolate between two colors
 sf::Color interpolateColor(const sf::Color& start, const sf::Color& end, float t) {
+    // Interpolate the red, green, and blue components of the colors
     return sf::Color(
         static_cast<sf::Uint8>(interpolate(start.r, end.r, t)),
         static_cast<sf::Uint8>(interpolate(start.g, end.g, t)),
         static_cast<sf::Uint8>(interpolate(start.b, end.b, t)),
-        255
+        255 // Alpha is fixed at 255 (fully opaque)
     );
 }
 
+// Function to update the text effect for the action status
 void Game::updateActionStatusEffect() {
     static std::vector<sf::Color> colors = {
         sf::Color::Red,
@@ -218,12 +236,18 @@ void Game::updateActionStatusEffect() {
         sf::Color::Cyan
     };
 
+    // Get the elapsed time in seconds since the last reset of the actionClock
     float elapsedTime = actionClock.getElapsedTime().asSeconds();
+    
+    // Calculate the current and next color indices based on elapsed time
     int currentIndex = static_cast<int>(elapsedTime * 3) % colors.size();
     int nextIndex = (currentIndex + 1) % colors.size();
-
+    
+    // Calculate the interpolation factor (t) between the current and next color
     float t = elapsedTime - static_cast<int>(elapsedTime);
     sf::Color currentColor = interpolateColor(colors[currentIndex], colors[nextIndex], t);
+    
+    // Apply the interpolated color to the action status text
     actionStatusText.setFillColor(currentColor);
 }
 
@@ -258,22 +282,26 @@ void Game::resetCharacters() {
 
 
 void Game::nextRound() {
+    // Check if the current round is less than the maximum number of rounds
     if (currentRound < maxRounds) {
         currentRound++;
         resetCharacters();
-        player->resetCriticalHit();
-        opponent->resetCriticalHit();
+        player->resetCriticalHit(); // Reset any critical hit flags for the player
+        opponent->resetCriticalHit(); // Reset any critical hit flags for the opponent
     } else {
+        // display the final results
         displayFinalResults();
         window.close();
     }
 }
 
 void Game::displayFinalResults() {
+    // Print the game conclusion summary to the console
     std::cout << "Game Over!\n";
     std::cout << "Player Wins: " << playerWins << "\n";
     std::cout << "Opponent Wins: " << opponentWins << "\n";
 
+    // Determine the winner and print the result
     if (playerWins > opponentWins) {
         std::cout << "Congratulations! You are the champion!\n" << std::endl;
     } else if (opponentWins > playerWins) {
@@ -284,6 +312,7 @@ void Game::displayFinalResults() {
 }
 
 void Game::showRoundResult(const std::string& result) {
+    // Create an SFML text object to display the round result
     sf::Text roundResultText;
     roundResultText.setFont(font);
     roundResultText.setCharacterSize(30);
@@ -300,6 +329,7 @@ void Game::showRoundResult(const std::string& result) {
 }
 
 void Game::showMainMenu() {
+    // Create the main menu text
     sf::Text menuText;
     menuText.setFont(font);
     menuText.setCharacterSize(30);
@@ -317,10 +347,12 @@ void Game::showMainMenu() {
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
+            // Handle window close
             if (event.type == sf::Event::Closed) {
                 window.close();
                 return;
             }
+            // Handle key press for menu options
             if (event.type == sf::Event::KeyPressed) {
                 if (event.key.code == sf::Keyboard::Num1) {
                     showCharacterSelection(); // Proceed to character selection
@@ -331,6 +363,7 @@ void Game::showMainMenu() {
                 }
             }
         }
+        // Render the menu text
         window.clear();
         window.draw(menuText);
         window.display();
@@ -338,6 +371,7 @@ void Game::showMainMenu() {
 }
 
 void Game::showCharacterSelection() {
+    // Create the character selection text
     sf::Text selectionText;
     selectionText.setFont(font);
     selectionText.setCharacterSize(30);
@@ -377,6 +411,7 @@ void Game::showCharacterSelection() {
     }
 }
 
+// Display the rules screen
 void Game::showRules() {
     while (window.isOpen()) {
         sf::Event event;
@@ -395,6 +430,7 @@ void Game::showRules() {
     }
 }
 
+// Create text for round end options
 void Game::showRoundEndOptions(const std::string& result) {
     sf::Text roundEndText;
     roundEndText.setFont(font);
@@ -429,6 +465,7 @@ void Game::showRoundEndOptions(const std::string& result) {
     }
 }
 
+// Create the final result text
 void Game::showFinalResultUI() {
     std::string finalResult = "Game Over!\n";
     finalResult += "\nPlayer Wins: " + std::to_string(playerWins) + "\n";
@@ -477,9 +514,11 @@ void Game::showFinalResultUI() {
 }
 
 void Game::resetGame() {
+    // Clean up the existing player and opponent objects
     if (player) delete player;
     if (opponent) delete opponent;
-
+    
+    // Reset game state
     currentRound = 1;
     playerWins = 0;
     opponentWins = 0;
@@ -490,6 +529,7 @@ void Game::resetGame(int playerChoice) {
     if (player) delete player;
     if (opponent) delete opponent;
 
+    // Recreate player and opponent based on the chosen character
     if (playerChoice == 1) {
         player = new SunWukong();
         opponent = new CaptainAmerica();
@@ -498,6 +538,7 @@ void Game::resetGame(int playerChoice) {
         opponent = new SunWukong();
     }
 
+    // Load the textures for the player and opponent characters
     if (!playerTexture.loadFromFile(playerChoice == 1 ? "../assets/sunwukong.png" : "../assets/captainamerica.png")) {
         std::cerr << "Failed to load player texture in resetGame!" << std::endl;
         exit(EXIT_FAILURE);
@@ -507,6 +548,7 @@ void Game::resetGame(int playerChoice) {
         exit(EXIT_FAILURE);
     }
 
+    // Update the sprite textures
     playerSprite.setTexture(playerTexture);
     opponentSprite.setTexture(opponentTexture);
     isPlayerTurn = true;
@@ -542,6 +584,7 @@ void Game::handleInput() {
         
         // Player's turn actions
         if (isPlayerTurn && event.type == sf::Event::KeyPressed) {
+            // Map key actions to corresponding player actions
             std::map<sf::Keyboard::Key, std::function<void()>> actions = {
                 {sf::Keyboard::A, [&]() {
                     player->attack(*opponent);
@@ -604,9 +647,11 @@ void Game::handleInput() {
     }
 }
 
+// Randomly choose an action for the opponent (0: Attack, 1: Defend, 2: Special)
 void Game::opponentAction() {
     int actionType = rand() % 3; // Randomly choose the opponent's action
     if (actionType == 0) {
+        // Perform attack
         opponent->attack(*player);
         actionStatusText.setString("Opponent attacked and caused " +
                                    std::to_string(opponent->getLastDamage()) +
@@ -614,6 +659,7 @@ void Game::opponentAction() {
                                    " damage.");
         
     } else if (actionType == 1) {
+        // Perform defend
         opponent->defend();
         actionStatusText.setString("Opponent defended, blocked " +
                                    std::to_string(opponent->getBlockedDamage()) +
@@ -622,6 +668,7 @@ void Game::opponentAction() {
         animateAction(opponent, "defend");
         
     } else if (actionType == 2) {
+        // Perform special attack if available
         if (opponent->canUseSpecial()) {
             opponent->special(*player);
             opponent->resetCooldown(5); // Reset cooldown
@@ -647,11 +694,12 @@ void Game::opponentAction() {
 
 
 void Game::animateAction(Character* character, const std::string& actionType) {
+    // Determine which sprite to animate (player or opponent)
     sf::Sprite* sprite = (character == player) ? &playerSprite : &opponentSprite;
     sf::Vector2f originalPosition = sprite->getPosition(); // Save original position
 
     if (actionType == "defend") {
-        // Load the shield texture
+        // Load the shield texture for defense animation
         sf::Texture shieldTexture;
         if (!shieldTexture.loadFromFile("../assets/shield.png")) { // Adjust path if needed
             std::cerr << "Failed to load shield texture!" << std::endl;
@@ -712,35 +760,42 @@ void Game::generateParticlesRecursive(sf::Vector2f position, int count, sf::Colo
 
     if (count <= 0) return; // Recursive end condition
 
+    // Generate a single particle with random position and velocity
     sf::Vertex particle;
     float angle = static_cast<float>(rand() % 360) * 3.14159f / 180.0f; // Random angle in radians
     float radius = static_cast<float>(rand() % 130 + 100); // Random radius
     sf::Vector2f offset(radius * cos(angle), radius * sin(angle)); // Convert polar to Cartesian
 
+    sf::CircleShape particleShape;
+    particleShape.setRadius(2.f); // Each particle is set to a radius of 2
+    
     particle.position = position + offset;
     particle.color = color;
 
     particles.append(particle);
     particleVelocities.push_back(offset * 0.1f); // Adjust speed
 
-    // Recursive Run
+    // Recursive call to generate the next particle
     generateParticlesRecursive(position, count - 1, color);
 }
 
 void Game::generateParticles(sf::Vector2f position, int count, sf::Color color) {
+    // Clear the previous particles
     particles.clear();
     particleVelocities.clear();
+    // Recursively generate new particles
     generateParticlesRecursive(position, count, color);
 }
 
 void Game::updateParticles() {
     for (size_t i = 0; i < particleVelocities.size(); ++i) {
-        particles[i].position += particleVelocities[i];
+        particles[i].position += particleVelocities[i]; // Update each particle's position
     }
-    particleClock.restart();
+    particleClock.restart(); // Restart the particle clock for consistent updates
 }
 
 void Game::updateDamageTexts() {
+    // Update player's damage-related text
     playerDamageText.setString(
         "- Last Damage: " + std::to_string(player->getLastDamage()) + "\n" +
         "- Critical Hit: " + (player->isCriticalHit() ? "Yes" : "No") + "\n" +
@@ -750,6 +805,7 @@ void Game::updateDamageTexts() {
         "- Last Health Recovered: " + std::to_string(player->getLastRecoveredHealth()) + "\n"
     );
 
+    // Update opponent's damage-related text
     opponentDamageText.setString(
         "- Last Damage: " + std::to_string(opponent->getLastDamage()) + "\n" +
         "- Critical Hit: " + (opponent->isCriticalHit() ? "Yes" : "No") + "\n" +
@@ -763,14 +819,16 @@ void Game::updateDamageTexts() {
 void Game::updateAnimations() {
     while (!stopThread) {
         {
-            std::lock_guard<std::mutex> lock(renderMutex); // lock mutex
-            updateParticles();
-            updateActionStatusEffect();
+            // Lock the render mutex to safely update animations
+            std::lock_guard<std::mutex> lock(renderMutex);
+            updateParticles(); // Update particle positions
+            updateActionStatusEffect(); // Update action status text effects
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(16));
+        std::this_thread::sleep_for(std::chrono::milliseconds(16)); // Limit updates to ~60 FPS
     }
 }
 
+// Render all game elements
 void Game::render() {
     std::lock_guard<std::mutex> lock(renderMutex); //lock mutex
     
