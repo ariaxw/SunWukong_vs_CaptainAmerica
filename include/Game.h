@@ -10,6 +10,7 @@
 #include "SunWukong.h"
 #include "CaptainAmerica.h"
 
+// Manages the game logic and rendering
 class Game {
 public:
     Game(int playerChoice);
@@ -21,6 +22,7 @@ public:
 
 
 private:
+    // Core game mechanics
     void handleInput();
     void updateAnimations();
     void opponentAction();
@@ -34,6 +36,7 @@ private:
     void resetGame(int playerChoice);
     void updateDamageTexts();
     
+    // Animation and particle management
     std::thread animationThread; // animation thread
     std::atomic<bool> stopThread;
     std::mutex renderMutex;
@@ -49,15 +52,17 @@ private:
     void generateParticlesRecursive(sf::Vector2f position, int count, sf::Color color);
     void generateParticles(sf::Vector2f position, int count, sf::Color color);
 
+    // Game state variables
     sf::RenderWindow window;
     Character* player;
     Character* opponent;
     bool isPlayerTurn;
 
+    // Game delay management
     bool isDelayed;
     sf::Clock delayClock;
 
-    // Textures and sprites for characters
+    // Textures and sprites for player and opponent attributes
     sf::Texture playerTexture;
     sf::Texture opponentTexture;
     sf::Sprite playerSprite;
@@ -90,14 +95,15 @@ private:
     sf::Texture backgroundTexture;
     sf::Sprite backgroundSprite;
     
+    // Game progress variables
     int playerWins = 0;
     int opponentWins = 0;
     int currentRound = 1;
     static const int maxRounds = 3;
 
-    void resetCharacters();
-    void nextRound();
-    void displayFinalResults();
+    void resetCharacters(); // Reset characters for the next round
+    void nextRound(); // Proceed to the next round
+    void displayFinalResults(); // Show results at the end of the game
 };
 
 #endif // GAME_H
