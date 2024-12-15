@@ -102,7 +102,6 @@ SunWukong_vs_CaptainAmerica/
 │   ├── Game.cpp
 │   ├── CaptainAmerica.cpp
 │   ├── SunWukong.cpp
-├── build/                 # Build directory
 ├── CMakeLists.txt         # Build configuration
 ```
 
